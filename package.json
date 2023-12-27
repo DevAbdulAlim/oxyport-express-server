@@ -2,13 +2,13 @@
   "name": "oxyport-express-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "prisma": {
     "seed": "node --require esbuild-register prisma/seed.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/app.ts"
   },
   "keywords": [],
   "author": "",

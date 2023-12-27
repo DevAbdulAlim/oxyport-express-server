@@ -1,4 +1,5 @@
-import { db } from "../src/utils/db.server";
+import { db } from "../src/config/database";
+
 
 const users = [
   {
