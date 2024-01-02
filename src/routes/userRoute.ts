@@ -9,15 +9,16 @@ import {
   loginUser,
   registerUser
 } from '../controllers/userController';
-import { authenticateUser } from '../middleware/auth';
-import { checkAdminRole } from '../middleware/admin';
+import isAuthenticated from '../middleware/authMiddleware';
+import isAdmin from '../middleware/adminMiddleware';
+
 
 // Create an Express router
 const router = express.Router();
 
 // Define user routes
 router.route('/users')
-  .get(authenticateUser, checkAdminRole , getAllUsers);
+  .get(isAuthenticated, isAdmin , getAllUsers);
 
 router.route('/users/:userId')
   .get(getUserById)

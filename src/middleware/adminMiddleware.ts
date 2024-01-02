@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { AuthRequest } from './auth';
+import { AuthRequest } from './authMiddleware';
 
-export const checkAdminRole = async (req: AuthRequest, res: Response, next: NextFunction) => {
+const isAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     // Ensure that req.user exists and has a 'role' property
     if (req.user && req.user.role === 'admin') {
@@ -20,3 +20,5 @@ export const checkAdminRole = async (req: AuthRequest, res: Response, next: Next
     });
   }
 };
+
+export default isAdmin;
