@@ -23,7 +23,7 @@ export const getAllProducts = asyncHandler(
       search: "",
       filters: {},
       page: 1,
-      pageSize: 10,
+      pageSize: 1,
     };
 
     const options = {
@@ -48,18 +48,24 @@ export const getAllProducts = asyncHandler(
         }
       : {};
 
-    const products = await db.product.findMany({
-      where: queryConditions,
-      orderBy: {
-        [options.sortBy]: options.sortOrder as "asc" | "desc",
-      },
-      skip: (options.page - 1) * options.pageSize,
-      take: options.pageSize,
-    });
+    const [products, totalItems] = await db.$transaction([
+      db.product.findMany({
+        where: queryConditions,
+        orderBy: {
+          [options.sortBy]: options.sortOrder as "asc" | "desc",
+        },
+        skip: (options.page - 1) * options.pageSize,
+        take: options.pageSize,
+      }),
+      db.product.count({
+        where: queryConditions,
+      }),
+    ]);
 
     res.status(200).json({
       success: true,
       products,
+      totalItems,
     });
   }
 );
