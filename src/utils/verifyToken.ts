@@ -10,21 +10,22 @@ interface JwtPayload {
 const secretKey = "secret-key";
 
 const generateVerifyToken = async (id: number, role: string, res: Response) => {
-  const token = jwt.sign({ id, role  }, secretKey, { expiresIn: "1h" });
+  const token = jwt.sign({ id, role }, secretKey, { expiresIn: "1h" });
 
   // Set the token as a cookie with a specific name (e.g., "verifyToken")
   res.cookie("verifyToken", token, {
     httpOnly: true,
     expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
-    secure: process.env.NODE_ENV === "production", // Set to true in production for secure cookies
+    // secure: process.env.NODE_ENV === "production", // Set to true in production for secure cookies
+    secure: false,
+    domain: "http://localhost:3000",
   });
 
   return token;
 };
 
 const validateVerifyToken = async (token: string) => {
-      return jwt.verify(token, secretKey) as JwtPayload;
+  return jwt.verify(token, secretKey) as JwtPayload;
 };
-
 
 export { generateVerifyToken, validateVerifyToken };
