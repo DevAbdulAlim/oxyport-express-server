@@ -14,11 +14,9 @@ const generateVerifyToken = async (id: number, role: string, res: Response) => {
 
   // Set the token as a cookie with a specific name (e.g., "verifyToken")
   res.cookie("verifyToken", token, {
-    httpOnly: true,
-    expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
-    // secure: process.env.NODE_ENV === "production", // Set to true in production for secure cookies
-    secure: false,
-    domain: "http://localhost:3000",
+    sameSite: "none",
+    secure: true,
+    expires: new Date(Date.now() + 1 * 60 * 60 * 1000),
   });
 
   return token;
