@@ -25,7 +25,7 @@ export const getAllProducts = asyncHandler(
         search: "",
         filters: {},
         page: 1,
-        pageSize: 1,
+        pageSize: 5,
       };
 
       const options = {
