@@ -6,15 +6,12 @@ import { Prisma } from "@prisma/client";
 export const getAllProducts = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authToken = req.cookies.verifyToken;
-      console.log(authToken);
-
       const { sortBy, sortOrder, search, filters, page, pageSize } =
         req.query as {
           sortBy: string;
           sortOrder: string;
           search: string;
-          filters: Record<string, any>; // Adjust this based on your actual filter types
+          filters: Record<string, any>; // filter options for products filter page
           page: string;
           pageSize: string;
         };
@@ -48,6 +45,18 @@ export const getAllProducts = asyncHandler(
       const [products, totalItems] = await db.$transaction([
         db.product.findMany({
           where: queryConditions,
+          include: {
+            category: {
+              select: {
+                name: true,
+              },
+            },
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
           orderBy: {
             [options.sortBy]: options.sortOrder as "asc" | "desc",
           },
