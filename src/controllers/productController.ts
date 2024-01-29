@@ -105,15 +105,24 @@ export const getProductById = asyncHandler(
 
 export const createProduct = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, description, price, image, stock, categoryId, userId } =
-      req.body;
+    const {
+      name,
+      description,
+      price,
+      discount,
+      images,
+      stock,
+      categoryId,
+      userId,
+    } = req.body;
 
     const createdProduct = await db.product.create({
       data: {
         name,
         description,
         price,
-        image,
+        discount,
+        images,
         stock,
         categoryId,
         userId,
@@ -130,7 +139,8 @@ export const createProduct = asyncHandler(
 export const updateProduct = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const productId = parseInt(req.params.productId, 10);
-    const { name, description, price, image, stock, categoryId } = req.body;
+    const { name, description, price, discount, images, stock, categoryId } =
+      req.body;
 
     const updatedProduct = await db.product.update({
       where: { id: productId },
@@ -138,7 +148,8 @@ export const updateProduct = asyncHandler(
         name,
         description,
         price,
-        image,
+        discount,
+        images,
         stock,
         categoryId,
       },

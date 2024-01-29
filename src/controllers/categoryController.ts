@@ -85,14 +85,15 @@ export const getCategoryById = asyncHandler(
 
 export const createCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, description } = req.body;
+    const { name, description, image } = req.body;
 
-    console.log(name, description);
+    console.log(name, description, image);
 
     const createdCategory = await db.category.create({
       data: {
         name,
         description,
+        image,
       },
     });
 
@@ -106,13 +107,14 @@ export const createCategory = asyncHandler(
 export const updateCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const categoryId = parseInt(req.params.categoryId, 10);
-    const { name, description } = req.body;
+    const { name, description, image } = req.body;
 
     const updatedCategory = await db.category.update({
       where: { id: categoryId },
       data: {
         name,
         description,
+        image,
       },
     });
 

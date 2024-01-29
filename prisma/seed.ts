@@ -1,6 +1,5 @@
 import { db } from "../src/config/database";
 
-
 const users = [
   {
     name: "John Doe",
@@ -36,6 +35,7 @@ const categories = [
   {
     name: "Electronics",
     description: "Gadgets and electronic devices",
+    image: "category.png",
   },
   // Add more categories as needed
 ];
@@ -45,7 +45,8 @@ const products = [
     name: "Smartphone",
     description: "Latest smartphone model",
     price: 599.99,
-    image: "phone_image_url",
+    discount: 10.1,
+    images: "phone_image_url",
     stock: 100,
     categoryId: 1, // Link to the category with ID 1
     userId: 1, // Link to the user with ID 1

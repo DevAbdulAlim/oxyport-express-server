@@ -3,16 +3,71 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { db } from "../config/database";
 import { generateVerifyToken } from "../utils/verifyToken";
 import bcrypt from "bcrypt";
+import { Prisma } from "@prisma/client";
 
-// User-related functions
 export const getAllUsers = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const users = await db.user.findMany();
+    try {
+      const { sortBy, sortOrder, search, page, pageSize } = req.query as {
+        sortBy: string;
+        sortOrder: string;
+        search: string;
+        page: string;
+        pageSize: string;
+      };
 
-    res.status(200).json({
-      success: true,
-      users,
-    });
+      const defaultOptions = {
+        sortBy: "createdAt",
+        sortOrder: "desc",
+        search: "",
+        filters: {},
+        page: 1,
+        pageSize: 5,
+      };
+
+      const options = {
+        sortBy: sortBy || defaultOptions.sortBy,
+        sortOrder: sortOrder || defaultOptions.sortOrder,
+        search: search || defaultOptions.search,
+        page: parseInt(page, 10) || defaultOptions.page,
+        pageSize: parseInt(pageSize, 10) || defaultOptions.pageSize,
+      };
+
+      const queryConditions: Prisma.UserWhereInput = options.search
+        ? {
+            OR: [
+              { name: { contains: options.search } },
+              { email: { contains: options.search } },
+            ],
+          }
+        : {};
+
+      const [users, totalItems] = await db.$transaction([
+        db.user.findMany({
+          where: queryConditions,
+          orderBy: {
+            [options.sortBy]: options.sortOrder as "asc" | "desc",
+          },
+          skip: (options.page - 1) * options.pageSize,
+          take: options.pageSize,
+        }),
+        db.user.count({
+          where: queryConditions,
+        }),
+      ]);
+
+      res.status(200).json({
+        success: true,
+        users,
+        totalItems,
+      });
+    } catch (error) {
+      console.error("Error in getAllUsers:", error);
+      res.status(500).json({
+        success: false,
+        error: "Internal Server Error",
+      });
+    }
   }
 );
 

@@ -35,17 +35,27 @@ const userRules = [
 ];
 
 const addressRules = [
-    body('city').trim().isLength({ min: 1 }).withMessage('City is required'),
-    body('state').trim().isLength({ min: 1 }).withMessage('State is required'),
-    body('postalCode').trim().isLength({ min: 1 }).withMessage('Postal code is required'),
-    body('country').trim().isLength({ min: 1 }).withMessage('Country is required'),
-    body('userId').isInt().withMessage('Invalid user ID'),
-]
+  body("city").trim().isLength({ min: 1 }).withMessage("City is required"),
+  body("state").trim().isLength({ min: 1 }).withMessage("State is required"),
+  body("postalCode")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Postal code is required"),
+  body("country")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Country is required"),
+  body("userId").isInt().withMessage("Invalid user ID"),
+];
 
 const categoryRules = [
-    body('name').trim().isLength({ min: 1 }).withMessage('Category name is required'),
-    body('description').optional().trim(),
-]
+  body("name")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Category name is required"),
+  body("description").optional().trim(),
+  body("image").optional().trim(),
+];
 
 const productRules = [
   body("name")
@@ -57,7 +67,8 @@ const productRules = [
     .isString()
     .withMessage("Description must be a string"),
   body("price").isNumeric().withMessage("Price must be a number"),
-  body("image")
+  body("discount").isNumeric().withMessage("Stock must be a number"),
+  body("images")
     .trim()
     .isLength({ min: 1 })
     .withMessage("Image URL is required"),
@@ -73,34 +84,57 @@ const productRules = [
 ];
 
 const reviewRules = [
-    body('text').trim().isLength({ min: 1 }).withMessage('Review text is required'),
-    body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
-    body('productId').isInt().withMessage('Invalid product ID'),
-]
+  body("text")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Review text is required"),
+  body("rating")
+    .isInt({ min: 1, max: 5 })
+    .withMessage("Rating must be between 1 and 5"),
+  body("productId").isInt().withMessage("Invalid product ID"),
+];
 
-const cartRules = [
-    body('userId').isInt().withMessage('Invalid user ID'),
-]
+const cartRules = [body("userId").isInt().withMessage("Invalid user ID")];
 
 const cartItemRules = [
-    body('cartId').isInt().withMessage('Invalid cart ID'),
-    body('productId').isInt().withMessage('Invalid product ID'),
-    body('quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
-]
+  body("cartId").isInt().withMessage("Invalid cart ID"),
+  body("productId").isInt().withMessage("Invalid product ID"),
+  body("quantity").isInt({ min: 1 }).withMessage("Quantity must be at least 1"),
+];
 
 const orderRules = [
-    body('userId').isInt().withMessage('Invalid user ID'),
-    body('total').isNumeric().withMessage('Total must be a number'),
-    body('status').trim().isLength({ min: 1 }).withMessage('Order status is required'),
-    body('paymentMethod').trim().isLength({ min: 1 }).withMessage('Payment method is required'),
-    body('transactionId').optional().trim(),
-    body('deliveryDate').optional().isISO8601().toDate().withMessage('Invalid date format'),
-]
+  body("userId").isInt().withMessage("Invalid user ID"),
+  body("total").isNumeric().withMessage("Total must be a number"),
+  body("status")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Order status is required"),
+  body("paymentMethod")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Payment method is required"),
+  body("transactionId").optional().trim(),
+  body("deliveryDate")
+    .optional()
+    .isISO8601()
+    .toDate()
+    .withMessage("Invalid date format"),
+];
 
 const orderItemRules = [
-    body('orderId').isInt().withMessage('Invalid order ID'),
-    body('productId').isInt().withMessage('Invalid product ID'),
-    body('quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
-]
+  body("orderId").isInt().withMessage("Invalid order ID"),
+  body("productId").isInt().withMessage("Invalid product ID"),
+  body("quantity").isInt({ min: 1 }).withMessage("Quantity must be at least 1"),
+];
 
-export {userRules, addressRules, categoryRules, productRules, reviewRules, cartRules, cartItemRules, orderRules, orderItemRules};
+export {
+  userRules,
+  addressRules,
+  categoryRules,
+  productRules,
+  reviewRules,
+  cartRules,
+  cartItemRules,
+  orderRules,
+  orderItemRules,
+};
