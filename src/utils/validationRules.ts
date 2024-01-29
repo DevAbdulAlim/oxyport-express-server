@@ -68,10 +68,6 @@ const productRules = [
     .withMessage("Description must be a string"),
   body("price").isNumeric().withMessage("Price must be a number"),
   body("discount").isNumeric().withMessage("Stock must be a number"),
-  body("images")
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("Image URL is required"),
   body("stock")
     .isInt({ min: 0 })
     .withMessage("Stock must be a non-negative integer"),

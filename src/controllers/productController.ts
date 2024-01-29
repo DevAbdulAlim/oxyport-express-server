@@ -108,11 +108,26 @@ export const createProduct = asyncHandler(
     const { name, description, price, discount, stock, categoryId, userId } =
       req.body;
 
+    const MAX_FILE_SIZE_MB = 20; // Maximum file size limit in megabytes
+
     // parse images
     const images: string = Array.isArray(req.files)
       ? req.files
           .filter((file: Express.Multer.File) => file.fieldname === "images[]")
-          .map((file: Express.Multer.File) => file.filename)
+          .map((file: Express.Multer.File) => {
+            // Check image mimetype
+            if (!file.mimetype.startsWith("image/")) {
+              throw new Error("Only image files are allowed");
+            }
+            // Check image size
+            const fileSizeInMb = file.size / (1024 * 1024); // Convert file size to MB
+            if (fileSizeInMb > MAX_FILE_SIZE_MB) {
+              throw new Error(
+                `File size exceeds the maximum limit of ${MAX_FILE_SIZE_MB} MB`
+              );
+            }
+            return file.filename;
+          })
           .join(",")
       : "";
 
