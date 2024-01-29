@@ -105,27 +105,33 @@ export const getProductById = asyncHandler(
 
 export const createProduct = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      name,
-      description,
-      price,
-      discount,
-      images,
-      stock,
-      categoryId,
-      userId,
-    } = req.body;
+    const { name, description, price, discount, stock, categoryId, userId } =
+      req.body;
+
+    // parse images
+    const images: string = Array.isArray(req.files)
+      ? req.files
+          .filter((file: Express.Multer.File) => file.fieldname === "images[]")
+          .map((file: Express.Multer.File) => file.filename)
+          .join(",")
+      : "";
+
+    const parsedPrice: number = parseFloat(price);
+    const parsedDiscount: number = parseFloat(discount);
+    const parsedStock: number = parseInt(stock, 10);
+    const parsedCategoryId: number = parseInt(categoryId, 10);
+    const parsedUserId: number = parseInt(userId, 10);
 
     const createdProduct = await db.product.create({
       data: {
         name,
         description,
-        price,
-        discount,
+        price: parsedPrice,
+        discount: parsedDiscount,
         images,
-        stock,
-        categoryId,
-        userId,
+        stock: parsedStock,
+        categoryId: parsedCategoryId,
+        userId: parsedUserId,
       },
     });
 
