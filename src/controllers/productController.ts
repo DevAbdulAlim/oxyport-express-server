@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { db } from "../config/database";
 import { Prisma } from "@prisma/client";
+import { imageParser } from "../utils/imageParser";
 
 export const getAllProducts = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -122,28 +123,8 @@ export const createProduct = asyncHandler(
     const { name, description, price, discount, stock, categoryId, userId } =
       req.body;
 
-    const MAX_FILE_SIZE_MB = 20; // Maximum file size limit in megabytes
-
     // parse images
-    const images: string = Array.isArray(req.files)
-      ? req.files
-          .filter((file: Express.Multer.File) => file.fieldname === "images[]")
-          .map((file: Express.Multer.File) => {
-            // Check image mimetype
-            if (!file.mimetype.startsWith("image/")) {
-              throw new Error("Only image files are allowed");
-            }
-            // Check image size
-            const fileSizeInMb = file.size / (1024 * 1024); // Convert file size to MB
-            if (fileSizeInMb > MAX_FILE_SIZE_MB) {
-              throw new Error(
-                `File size exceeds the maximum limit of ${MAX_FILE_SIZE_MB} MB`
-              );
-            }
-            return file.filename;
-          })
-          .join(",")
-      : "";
+    const images: string = imageParser(req);
 
     const parsedPrice: number = parseFloat(price);
     const parsedDiscount: number = parseFloat(discount);
@@ -174,19 +155,27 @@ export const createProduct = asyncHandler(
 export const updateProduct = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const productId = parseInt(req.params.productId, 10);
-    const { name, description, price, discount, images, stock, categoryId } =
-      req.body;
+    const { name, description, price, discount, stock, categoryId } = req.body;
+
+    const parsedPrice: number = parseFloat(price);
+    const parsedDiscount: number = parseFloat(discount);
+    const parsedStock: number = parseInt(stock, 10);
+    const parsedCategoryId: number = parseInt(categoryId, 10);
+
+    // parse images
+    const images: string = imageParser(req);
+    console.log(req.files);
 
     const updatedProduct = await db.product.update({
       where: { id: productId },
       data: {
         name,
         description,
-        price,
-        discount,
+        price: parsedPrice,
+        discount: parsedDiscount,
         images,
-        stock,
-        categoryId,
+        stock: parsedStock,
+        categoryId: parsedCategoryId,
       },
     });
 

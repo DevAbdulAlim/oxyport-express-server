@@ -8,7 +8,18 @@ export const loginUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
-    const user = await db.user.findUnique({ where: { email } });
+    const user = await db.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -30,7 +41,14 @@ export const loginUser = asyncHandler(
 
     res.status(200).json({
       success: true,
-      user,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
       authToken,
     });
   }
@@ -59,7 +77,14 @@ export const registerUser = asyncHandler(
 
     res.status(201).json({
       success: true,
-      user: createdUser,
+      user: {
+        id: createdUser.id,
+        name: createdUser.name,
+        email: createdUser.email,
+        role: createdUser.role,
+        createdAt: createdUser.createdAt,
+        updatedAt: createdUser.updatedAt,
+      },
     });
   }
 );
@@ -100,6 +125,15 @@ export const verifyToken = asyncHandler(
       const { id } = verifiedToken;
       const user = await db.user.findUnique({
         where: { id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          password: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
 
       if (!user) {

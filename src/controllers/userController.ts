@@ -45,6 +45,14 @@ export const getAllUsers = asyncHandler(
       const [users, totalItems] = await db.$transaction([
         db.user.findMany({
           where: queryConditions,
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+          },
           orderBy: {
             [options.sortBy]: options.sortOrder as "asc" | "desc",
           },
@@ -75,7 +83,17 @@ export const getUserById = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = parseInt(req.params.userId, 10);
 
-    const user = await db.user.findUnique({ where: { id: userId } });
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -91,25 +109,7 @@ export const getUserById = asyncHandler(
   }
 );
 
-export const createUser = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, password } = req.body;
-
-    const createdUser = await db.user.create({
-      data: {
-        name,
-        email,
-        password,
-      },
-    });
-
-    res.status(201).json({
-      success: true,
-      user: createdUser,
-    });
-  }
-);
-
+// This need to update
 export const updateUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = parseInt(req.params.userId, 10);

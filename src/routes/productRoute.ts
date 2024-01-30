@@ -17,7 +17,6 @@ router
   .route("/products")
   .get(getAllProducts)
   .post(isAuthenticated, isAdmin, productRules, validationError, createProduct);
-// .post(isAuthenticated, isAdmin, createProduct);
 
 router
   .route("/products/:productId")
