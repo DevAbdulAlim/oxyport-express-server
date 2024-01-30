@@ -87,7 +87,21 @@ export const getProductById = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const productId = parseInt(req.params.productId, 10);
 
-    const product = await db.product.findUnique({ where: { id: productId } });
+    const product = await db.product.findUnique({
+      where: { id: productId },
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
 
     if (!product) {
       return res.status(404).json({
