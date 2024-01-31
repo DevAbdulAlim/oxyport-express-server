@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/authRoute";
 import productRoutes from "./routes/productRoute";
+import orderRoutes from "./routes/orderRoute";
 import userRoutes from "./routes/userRoute";
 import categoryRoutes from "./routes/categoryRoute";
 import cors from "cors";
@@ -41,6 +42,7 @@ app.use(cookieParser());
 
 app.use("/api", authRoutes);
 app.use("/api", categoryRoutes);
+app.use("/api", orderRoutes);
 app.use("/api", productRoutes);
 app.use("/api", userRoutes);
 

@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { db } from "../config/database";
 import { Prisma } from "@prisma/client";
 import multer from "multer";
+import { imageParser } from "../utils/imageParser";
 
 export const getAllCategories = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -48,6 +49,7 @@ export const getAllCategories = asyncHandler(
       res.status(200).json({
         success: true,
         categories,
+        totalItems,
       });
     } catch (error) {
       console.error("Error in getAllCategories", error);
@@ -85,9 +87,10 @@ export const getCategoryById = asyncHandler(
 
 export const createCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, description, image } = req.body;
+    const { name, description } = req.body;
 
-    console.log(name, description, image);
+    const image: string = imageParser(req);
+    console.log(name, description);
 
     const createdCategory = await db.category.create({
       data: {

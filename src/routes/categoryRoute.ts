@@ -13,18 +13,19 @@ import validationError from "../middleware/validationMiddleware";
 
 const router = express.Router();
 
-router.route("/categories").get(getAllCategories).post(
-  // isAuthenticated,
-  // isAdmin,
-  // categoryRules,
-  // validationError,
-  createCategory
-);
-
 router
-  .route("/categories/:categoryId")
-  .get(getCategoryById)
+  .route("/categories")
+  .get(getAllCategories)
+  .post(
+    isAuthenticated,
+    isAdmin,
+    categoryRules,
+    validationError,
+    createCategory
+  )
   .put(isAuthenticated, isAdmin, categoryRules, validationError, updateCategory)
   .delete(isAuthenticated, isAdmin, deleteCategory);
+
+router.route("/categories/:categoryId").get(getCategoryById);
 
 export default router;
