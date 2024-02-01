@@ -104,17 +104,24 @@ model CartItem {
 }
 
 model Order {
-  id            Int         @id @default(autoincrement())
-  userId        Int
-  user          User        @relation(fields: [userId], references: [id])
-  total         Float
-  status        String
-  paymentMethod String
-  transactionId String?
-  deliveryDate  DateTime?
-  items         OrderItem[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id             Int         @id @default(autoincrement())
+  userId         Int
+  user           User        @relation(fields: [userId], references: [id])
+  name           String
+  address        String
+  city           String
+  zip            String
+  email          String
+  phone          String
+  order_status   String
+  total_amount   Float
+  paid_amount    Float       @default(0)
+  due_amount     Float
+  payment_status String
+  items          OrderItem[]
+  payments       Payment[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 }
 
 model OrderItem {
@@ -126,4 +133,16 @@ model OrderItem {
   quantity  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id            String  @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  method        String
+  amount        Float
+  transactionId String?
+  order         Order   @relation(fields: [orderId], references: [id])
+  orderId       Int
 }

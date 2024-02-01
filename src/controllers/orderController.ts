@@ -28,7 +28,7 @@ export const getAllOrders = asyncHandler(
         ? {
             OR: [
               { id: { equals: parseInt(options.search) || undefined } },
-              { status: { contains: options.search } },
+              { order_status: { contains: options.search } },
             ],
           }
         : {};
@@ -90,32 +90,70 @@ export const getOrderById = asyncHandler(
 
 export const createOrder = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      userId,
-      total,
-      status,
-      paymentMethod,
-      transactionId,
-      deliveryDate,
-      items,
-    } = req.body;
+    const { name, address, city, zip, email, phone, items } = req.body;
 
+    // Extract the product IDs from the items array
+    const productIds = items.map((item: any) => item.productId);
+
+    // Fetch all products with the given IDs
+    const products = await db.product.findMany({
+      where: {
+        id: { in: productIds },
+      },
+    });
+
+    // Calculate the total amount based on the fetched products
+    let total = 0;
+    for (const item of items) {
+      const product = products.find((p) => p.id === item.productId);
+      if (product) {
+        total += product.price * item.quantity;
+      }
+    }
+
+    // Create the order in the database without items
     const createdOrder = await db.order.create({
       data: {
-        userId,
-        total,
-        status,
-        paymentMethod,
-        transactionId,
-        deliveryDate,
-        items: { create: items },
+        userId: 1, // Assuming userId is hardcoded for now
+        name,
+        address,
+        city,
+        zip,
+        email,
+        phone,
+        order_status: "PENDING",
+        total_amount: total,
+        paid_amount: 0,
+        due_amount: total,
+        payment_status: "UNPAID",
       },
+      include: { user: true },
+    });
+
+    // Now that the order is created, associate the items with the generated orderId
+    const orderId = createdOrder.id;
+    const orderItems = items.map((item: any) => ({
+      orderId,
+      productId: item.productId,
+      quantity: item.quantity,
+    }));
+
+    // Create each order item individually
+    for (const item of orderItems) {
+      await db.orderItem.create({
+        data: item,
+      });
+    }
+
+    // Fetch the created order with associated items
+    const finalOrder = await db.order.findUnique({
+      where: { id: orderId },
       include: { user: true, items: true },
     });
 
     res.status(201).json({
       success: true,
-      order: createdOrder,
+      order: finalOrder,
     });
   }
 );
@@ -123,28 +161,27 @@ export const createOrder = asyncHandler(
 export const updateOrder = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const orderId = parseInt(req.params.orderId, 10);
-    const { total, status, paymentMethod, transactionId, deliveryDate, items } =
-      req.body;
+    const { order_status } = req.body;
 
-    const updatedOrder = await db.order.update({
+    // Ensure that the order exists before attempting to update it
+    const existingOrder = await db.order.findUnique({
       where: { id: orderId },
-      data: {
-        total,
-        status,
-        paymentMethod,
-        transactionId,
-        deliveryDate,
-        items: { set: items },
-      },
-      include: { user: true, items: true },
     });
 
-    if (!updatedOrder) {
+    if (!existingOrder) {
       return res.status(404).json({
         success: false,
         message: "Order not found",
       });
     }
+
+    // Update the order status in the database
+    const updatedOrder = await db.order.update({
+      where: { id: orderId },
+      data: {
+        order_status,
+      },
+    });
 
     res.status(200).json({
       success: true,

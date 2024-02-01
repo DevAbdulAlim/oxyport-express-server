@@ -99,22 +99,27 @@ const cartItemRules = [
 ];
 
 const orderRules = [
-  body("userId").isInt().withMessage("Invalid user ID"),
-  body("total").isNumeric().withMessage("Total must be a number"),
-  body("status")
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("Order status is required"),
-  body("paymentMethod")
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("Payment method is required"),
-  body("transactionId").optional().trim(),
-  body("deliveryDate")
-    .optional()
-    .isISO8601()
-    .toDate()
-    .withMessage("Invalid date format"),
+  body("name").notEmpty().withMessage("Name is required"),
+  body("address").notEmpty().withMessage("Address is required"),
+  body("city").notEmpty().withMessage("City is required"),
+  body("zip").notEmpty().withMessage("Zip code is required"),
+  body("zip")
+    .isLength({ min: 5, max: 10 })
+    .withMessage("Zip code must be between 5 and 10 characters"),
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address"),
+  body("phone").notEmpty().withMessage("Phone number is required"),
+  body("phone")
+    .matches(/^\d{3}-\d{3}-\d{4}$/)
+    .withMessage("Invalid phone number format"),
+  body("items").isArray().withMessage("Items must be an array"),
+  body("items.*.productId").isInt({ min: 1 }).withMessage("Invalid product ID"),
+  body("items.*.quantity")
+    .isInt({ min: 1 })
+    .withMessage("Quantity must be a positive integer"),
 ];
 
 const orderItemRules = [
