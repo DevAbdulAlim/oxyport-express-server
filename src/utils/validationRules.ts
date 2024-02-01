@@ -113,8 +113,10 @@ const orderRules = [
     .withMessage("Invalid email address"),
   body("phone").notEmpty().withMessage("Phone number is required"),
   body("phone")
-    .matches(/^\d{3}-\d{3}-\d{4}$/)
-    .withMessage("Invalid phone number format"),
+    .matches(/^\d{10}$/)
+    .withMessage(
+      "Phone number must be exactly 11 digits and contain only numbers"
+    ),
   body("items").isArray().withMessage("Items must be an array"),
   body("items.*.productId").isInt({ min: 1 }).withMessage("Invalid product ID"),
   body("items.*.quantity")
