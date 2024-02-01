@@ -23,9 +23,17 @@ router
     validationError,
     createCategory
   )
-  .put(isAuthenticated, isAdmin, categoryRules, validationError, updateCategory)
-  .delete(isAuthenticated, isAdmin, deleteCategory);
+  .put(
+    isAuthenticated,
+    isAdmin,
+    categoryRules,
+    validationError,
+    updateCategory
+  );
 
-router.route("/categories/:categoryId").get(getCategoryById);
+router
+  .route("/categories/:categoryId")
+  .get(getCategoryById)
+  .delete(isAuthenticated, isAdmin, deleteCategory);
 
 export default router;

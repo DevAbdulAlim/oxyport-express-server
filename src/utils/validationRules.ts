@@ -128,6 +128,11 @@ const orderItemRules = [
   body("quantity").isInt({ min: 1 }).withMessage("Quantity must be at least 1"),
 ];
 
+const validStatusValues = ["PENDING", "PROCESSING", "DELIVERED", "CANCELED"];
+const orderStatusRules = body("order_status")
+  .isIn(validStatusValues)
+  .withMessage(`order_status must be one of: ${validStatusValues.join(", ")}`);
+
 export {
   userRules,
   addressRules,
@@ -138,4 +143,5 @@ export {
   cartItemRules,
   orderRules,
   orderItemRules,
+  orderStatusRules,
 };
