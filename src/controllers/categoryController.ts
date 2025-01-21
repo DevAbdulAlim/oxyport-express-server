@@ -90,7 +90,6 @@ export const createCategory = asyncHandler(
     const { name, description } = req.body;
 
     const image: string = imageParser(req);
-    console.log(name, description);
 
     const createdCategory = await db.category.create({
       data: {

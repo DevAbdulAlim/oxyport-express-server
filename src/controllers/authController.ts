@@ -103,7 +103,6 @@ export const logoutUser = asyncHandler(
 export const verifyToken = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const authToken = req.cookies.verifyToken;
-    console.log(authToken);
 
     if (!authToken) {
       return res.status(401).json({
