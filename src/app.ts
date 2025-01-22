@@ -14,24 +14,20 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
-// Configure multer middleware to save files directly in the "public/images" directory
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/images/");
   },
   filename: function (req, file, cb) {
-    const randomName =
-      req.body.name.replace(/\s+/g, "_") +
-      "_" +
-      Math.random().toString(36).substring(7);
-    cb(null, randomName + path.extname(file.originalname));
+    const originalName = file.originalname.replace(/\s+/g, "_");
+    cb(null, originalName);
   },
 });
 
 const upload = multer({ storage: storage });
 
 // Apply multer middleware to all routes
-app.use(upload.any()); // This will parse all types of multipart/form-data
+app.use(upload.any());
 
 // Serve static files from the "public/images" directory
 // app.use("/images", express.static(path.join(__dirname, "public", "images")));

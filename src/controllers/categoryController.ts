@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { db } from "../config/database";
 import { Prisma } from "@prisma/client";
-import multer from "multer";
 import { imageParser } from "../utils/imageParser";
+import { deleteFile } from "../utils/file";
 
 export const getAllCategories = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -89,13 +89,15 @@ export const createCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, description } = req.body;
 
-    const image: string = imageParser(req);
+    // get uploaded image names from multer
+    const uploadedImages = req.files as Express.Multer.File[];
+    const newImages = uploadedImages.map((file) => file.filename);
 
     const createdCategory = await db.category.create({
       data: {
         name,
         description,
-        image,
+        image: newImages.join(","),
       },
     });
 
@@ -108,24 +110,50 @@ export const createCategory = asyncHandler(
 
 export const updateCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const categoryId = parseInt(req.params.categoryId, 10);
-    const { name, description, image } = req.body;
+    const categoryId = Number.parseInt(req.params.categoryId, 10);
+    const { name, description } = req.body;
 
-    const updatedCategory = await db.category.update({
+    const existingCategory = await db.category.findUnique({
       where: { id: categoryId },
-      data: {
-        name,
-        description,
-        image,
-      },
     });
 
-    if (!updatedCategory) {
+    if (!existingCategory) {
       return res.status(404).json({
         success: false,
         message: "Category not found",
       });
     }
+
+    const currentDatabaseImages = existingCategory?.image?.split(",") || [];
+
+    // get all existing images that user didn't modify
+    const existingImages = req.body.existingImages
+      ? Array.isArray(req.body.existingImages)
+        ? req.body.existingImages
+        : req.body.existingImages.split(",")
+      : [];
+
+    // get uploaded image names from multer
+    const uploadedImages = req.files as Express.Multer.File[];
+
+    const newImages = uploadedImages.map((file) => file.filename);
+    const updatedImages = [...existingImages, ...newImages];
+
+    for (const image of currentDatabaseImages) {
+      if (!updatedImages.includes(image)) {
+        await deleteFile(`public/images/${image}`);
+      }
+    }
+
+    // Update the category with the existing and new images
+    const updatedCategory = await db.category.update({
+      where: { id: categoryId },
+      data: {
+        name,
+        description,
+        image: updatedImages.join(","),
+      },
+    });
 
     res.status(200).json({
       success: true,
@@ -147,6 +175,13 @@ export const deleteCategory = asyncHandler(
         success: false,
         message: "Category not found",
       });
+    }
+
+    const currentDatabaseImages = deletedCategory?.image?.split(",") || [];
+    if (currentDatabaseImages) {
+      for (const image of currentDatabaseImages) {
+        await deleteFile(`public/images/${image}`);
+      }
     }
 
     res.status(200).json({
