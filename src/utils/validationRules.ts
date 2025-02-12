@@ -74,9 +74,6 @@ const productRules = [
   body("categoryId")
     .isInt({ min: 1 })
     .withMessage("Category ID must be a positive integer"),
-  body("userId")
-    .isInt({ min: 1 })
-    .withMessage("User ID must be a positive integer"),
 ];
 
 const reviewRules = [

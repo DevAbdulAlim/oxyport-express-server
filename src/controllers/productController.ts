@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { db } from "../config/database";
 import { Prisma } from "@prisma/client";
 import { imageParser } from "../utils/imageParser";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 export const getAllProducts = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -119,18 +120,19 @@ export const getProductById = asyncHandler(
 );
 
 export const createProduct = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { name, description, price, discount, stock, categoryId, userId } =
       req.body;
 
     // parse images
-    const images: string = imageParser(req);
+    const uploadedImages = req.files as Express.Multer.File[];
+    const newImages = uploadedImages.map((file) => file.filename);
 
     const parsedPrice: number = parseFloat(price);
     const parsedDiscount: number = parseFloat(discount);
     const parsedStock: number = parseInt(stock, 10);
     const parsedCategoryId: number = parseInt(categoryId, 10);
-    const parsedUserId: number = parseInt(userId, 10);
+    const parsedUserId: number = req.user.id;
 
     const createdProduct = await db.product.create({
       data: {
@@ -138,7 +140,7 @@ export const createProduct = asyncHandler(
         description,
         price: parsedPrice,
         discount: parsedDiscount,
-        images,
+        images: newImages.join(","),
         stock: parsedStock,
         categoryId: parsedCategoryId,
         userId: parsedUserId,
