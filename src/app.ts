@@ -4,6 +4,7 @@ import productRoutes from "./routes/productRoute";
 import orderRoutes from "./routes/orderRoute";
 import userRoutes from "./routes/userRoute";
 import categoryRoutes from "./routes/categoryRoute";
+import paymentRoutes from "./routes/paymentRoute";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import multer from "multer";
@@ -41,6 +42,7 @@ app.use("/api", categoryRoutes);
 app.use("/api", orderRoutes);
 app.use("/api", productRoutes);
 app.use("/api", userRoutes);
+app.use("/api", paymentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

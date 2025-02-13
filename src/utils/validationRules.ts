@@ -127,6 +127,36 @@ const orderItemRules = [
   body("quantity").isInt({ min: 1 }).withMessage("Quantity must be at least 1"),
 ];
 
+const paymentRules = [
+  body("name").trim().isLength({ min: 1 }).withMessage("Name is required"),
+
+  body("email").trim().isEmail().withMessage("Valid email is required"),
+
+  body("phone")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Phone number is required"),
+
+  body("method")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Payment method is required"),
+
+  body("amount")
+    .isNumeric()
+    .withMessage("Amount must be a number")
+    .isFloat({ min: 0.01 })
+    .withMessage("Amount must be greater than 0"),
+
+  body("orderId").isInt({ min: 1 }).withMessage("Valid order ID is required"),
+
+  body("transactionId")
+    .optional()
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Transaction ID must not be empty if provided"),
+];
+
 const validStatusValues = ["PENDING", "PROCESSING", "DELIVERED", "CANCELED"];
 const orderStatusRules = body("order_status")
   .isIn(validStatusValues)
@@ -143,4 +173,5 @@ export {
   orderRules,
   orderItemRules,
   orderStatusRules,
+  paymentRules,
 };
