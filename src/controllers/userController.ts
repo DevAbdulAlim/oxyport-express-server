@@ -4,6 +4,7 @@ import { db } from "../config/database";
 import { generateVerifyToken } from "../utils/verifyToken";
 import bcrypt from "bcrypt";
 import { Prisma } from "@prisma/client";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 export const getAllUsers = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -156,6 +157,86 @@ export const deleteUser = asyncHandler(
     res.status(200).json({
       success: true,
       message: "User deleted successfully",
+    });
+  }
+);
+
+// Client
+export const getUserProfile = asyncHandler(
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userId = req.user.id;
+
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        avatar: true,
+        bio: true,
+        address: true,
+        phone: true,
+        birthDate: true,
+        gender: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  }
+);
+
+export const updateUserProfile = asyncHandler(
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const userId = req.user.id;
+    const { name, email, avatar, phone, birthDate, gender, bio } = req.body;
+
+    // Build the update object dynamically, filtering out empty strings and undefined values
+    const updateData: Record<string, any> = {};
+
+    if (name && name.trim() !== "") updateData.name = name;
+    if (email && email.trim() !== "") updateData.email = email;
+    if (avatar && avatar.trim() !== "") updateData.avatar = avatar;
+    if (phone && phone.trim() !== "") updateData.phone = phone;
+    if (birthDate && birthDate.trim() !== "") updateData.birthDate = birthDate;
+    if (gender && gender.trim() !== "") updateData.gender = gender;
+    if (bio && bio.trim() !== "") updateData.bio = bio;
+
+    // If no valid fields are provided, return an error
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields to update",
+      });
+    }
+
+    // Perform the update
+    const updatedUser = await db.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
     });
   }
 );

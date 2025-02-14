@@ -5,6 +5,8 @@ import {
   getUserById,
   updateUser,
   deleteUser,
+  getUserProfile,
+  updateUserProfile,
 } from "../controllers/userController";
 import isAuthenticated from "../middleware/authMiddleware";
 import isAdmin from "../middleware/adminMiddleware";
@@ -20,6 +22,11 @@ router
   .get(getUserById)
   .put(updateUser)
   .delete(deleteUser);
+
+router
+  .route("/user/profile")
+  .get(isAuthenticated, getUserProfile)
+  .put(isAuthenticated, updateUserProfile);
 
 // Export the router
 export default router;
